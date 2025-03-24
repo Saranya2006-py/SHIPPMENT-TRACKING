@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Shipment</title>
+
+    <!-- Add favicon link -->
+    {% load static %}
+    <link rel="icon" href="{% static 'images/fevicon.ico' %}" type="image/x-icon">
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Center the page content */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        /* Header styling */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 36px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* Form styling */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-size: 18px;
+            color: #34495e;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #3498db;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            font-size: 18px;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Shipment info section */
+        #shipment-info {
+            display: none;
+            border-top: 2px solid #3498db;
+            padding-top: 20px;
+        }
+
+        #shipment-info h2 {
+            color: #2980b9;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #shipment-info p {
+            font-size: 18px;
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+
+        /* Error message */
+        #error-message {
+            display: none;
+            color: #e74c3c;
+            background-color: #f2dede;
+            padding: 15px;
+            border: 1px solid #e74c3c;
+            border-radius: 4px;
+            font-size: 18px;
+            margin-top: 30px;
+        }
+
+        /* Styling for labels */
+        .bold {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+
+            #shipment-info h2 {
+                font-size: 24px;
+            }
+
+            label,
+            p {
+                font-size: 16px;
+            }
+
+            input[type="text"],
+            button {
+                font-size: 16px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Track Your Shipment</h1>
+        
+        <form id="track-shipment-form">
+            <label for="tracking_id" class="bold">Enter Tracking ID:</label>
+            <input type="text" id="tracking_id" name="tracking_id" required placeholder="Enter your shipment's tracking ID">
+            <button type="submit">Track</button>
+        </form>
+
+        <div id="shipment-info">
+            <h2>Shipment Info</h2>
+            <p><span class="bold">Tracking ID:</span> <span id="tracking-id"></span></p>
+            <p><span class="bold">Status:</span> <span id="status"></span></p>
+            <p><span class="bold">Location:</span></p>
+            <p><span class="bold">Latitude:</span> <span id="latitude"></span></p>
+            <p><span class="bold">Longitude:</span> <span id="longitude"></span></p>
+            <p><span class="bold">Distance:</span> <span id="distance"></span> km</p>
+            <p><span class="bold">Carbon Emission:</span> <span id="carbon-emission"></span> kg CO2</p>
+        </div>
+
+        <div id="error-message">
+            <p><strong>Error:</strong> Shipment not found</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('track-shipment-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const trackingId = document.getElementById('tracking_id').value;
+            
+            fetch(`/track_shipment/${trackingId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('error-message').style.display = 'block';
+                        document.getElementById('shipment-info').style.display = 'none';
+                    } else {
+                        document.getElementById('error-message').style.display = 'none';
+                        document.getElementById('shipment-info').style.display = 'block';
+                        document.getElementById('tracking-id').textContent = data.tracking_id;
+                        document.getElementById('status').textContent = data.status;
+                        document.getElementById('latitude').textContent = data.location.latitude;
+                        document.getElementById('longitude').textContent = data.location.longitude;
+                        document.getElementById('distance').textContent = data.distance.toFixed(2);
+                        document.getElementById('carbon-emission').textContent = data.carbon_emission.toFixed(2);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+
+</body>
+</html>
