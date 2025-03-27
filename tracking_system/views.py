@@ -72,4 +72,4 @@ def track_shipment(request, tracking_id):
         return JsonResponse(data)
 
     except Shipment.DoesNotExist:
-        return JsonResponse({"error": "Shipment not found"}, status=404)
+        return JsonResponse({"error": "Shipment not found"}, status=404) 

@@ -14,4 +14,4 @@ class Shipment(models.Model):
     ], default='Pending')
 
     def __str__(self):
-        return self.tracking_id
+        return self.tracking_id  
